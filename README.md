@@ -161,7 +161,7 @@ nmap -p- 10.10.x.x
 SYN scans (`-sS`) are faster and stealthier because the connection is never fully established, reducing the chance of being logged by the target application. TCP connect scans (`-sT`) complete the handshake and are more likely to appear in application logs.
 
 ### Open, Closed, and Filtered Ports
-Nmap reports six states: **open** (service is listening), **closed** (port is reachable but no service), and **filtered** (a firewall is blocking the probe). Filtered ports are significant from a SOC perspective — they indicate a security control is in place.
+Nmap reports six states: **open** (service listening), **closed** (no service, but accessible), **filtered** (firewall/blocked), **unfiltered** (accessible but state unknown), **open|filtered**, and **closed|filtered**. Filtered ports are significant from a SOC perspective — they indicate a security control is in place.
 
 ---
 
@@ -175,13 +175,13 @@ Advanced scan types allow for stealthier enumeration and can help identify firew
 
 ### Step 1 — NULL Scan
 
-Sends a TCP packet with no flags set. On open ports, no response is returned. On closed ports, a RST is returned. Can bypass some stateless firewalls.
+Sends a TCP packet with no flags set. On open ports or ports blocked due to firewall rules, no response is returned. On closed ports, an RST is returned. Can bypass some stateless firewalls.
 
 ```bash
-nmap -sN 10.10.x.x
+nmap -sN 10.67.186.242
 ```
 
-[image]
+<img width="2325" height="598" alt="Screenshot 2026-05-08 163314" src="https://github.com/user-attachments/assets/e144f4b5-4c34-4d73-b34f-8866b312025c" />
 
 *Ref 9: NULL scan output.*
 
@@ -190,10 +190,10 @@ nmap -sN 10.10.x.x
 Sends a TCP FIN packet. Similar behavior to NULL scan — useful for bypassing certain packet filters.
 
 ```bash
-nmap -sF 10.10.x.x
+nmap -sF 10.67.186.242
 ```
 
-[image]
+<img width="2338" height="597" alt="Screenshot 2026-05-08 163254" src="https://github.com/user-attachments/assets/4c3c20fd-1990-48fa-a720-d6b90ec5b413" />
 
 *Ref 10: FIN scan output.*
 
@@ -202,10 +202,10 @@ nmap -sF 10.10.x.x
 Sets the FIN, PSH, and URG flags simultaneously. Named "Xmas" because the flags light up like a Christmas tree in a packet analyzer.
 
 ```bash
-nmap -sX 10.10.x.x
+nmap -sX 10.67.186.242
 ```
 
-[image]
+<img width="2333" height="601" alt="Screenshot 2026-05-08 163518" src="https://github.com/user-attachments/assets/b938d777-fb8a-4760-a5a2-3307f8153cdb" />
 
 *Ref 11: Xmas scan output.*
 
