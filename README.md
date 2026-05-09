@@ -142,13 +142,13 @@ nmap -sU -F -v 10.66.142.113
 
 ```bash
 # Scan a single port
-nmap -p 22 10.10.x.x
+nmap -p 22 10.66.142.113
 
 # Scan a range
-nmap -p 1-1000 10.10.x.x
+nmap -p 1-1000 10.66.142.113
 
 # Scan all 65535 ports
-nmap -p- 10.10.x.x
+nmap -p- 10.66.142.113
 ```
 
 <img width="2391" height="1555" alt="Screenshot 2026-05-08 161113" src="https://github.com/user-attachments/assets/d9f304a8-5331-4294-8ff7-30bfb6118e58" />
@@ -214,20 +214,20 @@ nmap -sX 10.67.186.242
 Spoofs additional source IPs to obscure which host is actually performing the scan. Makes it harder for a defender to identify the real attacker.
 
 ```bash
-nmap -D RND:5 10.10.x.x
+nmap -D RND:5 10.64.191.192
 ```
 
-[image]
+<img width="2330" height="447" alt="Screenshot 2026-05-08 215841" src="https://github.com/user-attachments/assets/e7f8c587-a57d-4f82-acd4-bbd05565c965" />
 
 *Ref 12: Decoy scan output showing spoofed source addresses.*
 
 ## Findings
 
 ### Stealth Scan Techniques
-NULL, FIN, and Xmas scans exploit a quirk in the TCP RFC — compliant systems should respond with RST on closed ports and nothing on open ports. However, Windows systems do not follow this behavior and will return RST regardless, making these scans less reliable against Windows targets.
+NULL, FIN, and Xmas scans exploit a quirk in the TCP RFC; compliant systems should respond with RST on closed ports and nothing on open ports. However, Windows systems do not follow this behavior and will return RST regardless, making these scans less reliable against Windows targets.
 
 ### Defensive Relevance
-From a SOC perspective, unusual flag combinations (no flags, FIN only, FIN+PSH+URG) in network traffic are strong indicators of reconnaissance activity. A properly tuned IDS would alert on these patterns.
+From a SOC perspective, unusual combinations of flags (no flags, FIN only, FIN+PSH+URG) in network traffic are strong indicators of reconnaissance activity. A properly tuned IDS would alert on these patterns.
 
 ---
 
@@ -244,34 +244,34 @@ After identifying open ports, the final step is fingerprinting exactly what is r
 Probes each open port to identify the service name and software version. Version information is critical for identifying known vulnerabilities.
 
 ```bash
-nmap -sV 10.10.x.x
+nmap -sV 10.64.178.218
 ```
 
-[image]
+<img width="2340" height="631" alt="Screenshot 2026-05-08 222120" src="https://github.com/user-attachments/assets/fbfc394e-d7c3-42c1-8056-96c9c81a42bf" />
 
 *Ref 13: Service version detection output showing service names and versions.*
 
 ### Step 2 — OS Detection
 
-Analyzes TCP/IP stack behavior to guess the target's operating system and version.
+Analyzes TCP/IP stack behavior to guess the target's operating system and version. The no exact match is to be expected with TryHackMe's VMs. 
 
 ```bash
-nmap -O 10.10.x.x
+nmap -O 10.64.178.218
 ```
 
-[image]
+<img width="2327" height="1050" alt="Screenshot 2026-05-08 222526" src="https://github.com/user-attachments/assets/0a72b2a4-1cb5-41aa-9865-1e949478696b" />
 
 *Ref 14: OS detection output showing OS guess and confidence level.*
 
 ### Step 3 — Default NSE Scripts
 
-Runs Nmap's default script set, which performs additional enumeration including checking for common vulnerabilities, gathering banners, and identifying misconfigurations.
+Runs Nmap's default script set, which performs additional enumeration, including checking for common vulnerabilities, gathering banners, and identifying misconfigurations.
 
 ```bash
-nmap -sC 10.10.x.x
+nmap -sC 10.64.179.194
 ```
 
-[image]
+<img width="1988" height="1300" alt="Screenshot 2026-05-08 223902" src="https://github.com/user-attachments/assets/268b09aa-ddb5-4d1b-809a-9eebd839ef83" />
 
 *Ref 15: NSE default script output.*
 
@@ -280,10 +280,11 @@ nmap -sC 10.10.x.x
 Combines OS detection, version detection, script scanning, and traceroute in a single command. Most comprehensive scan — also most detectable.
 
 ```bash
-nmap -A 10.10.x.x
+nmap -A 10.64.179.194
 ```
 
-[image]
+<img width="2496" height="1203" alt="Screenshot 2026-05-08 225535" src="https://github.com/user-attachments/assets/7fc21401-0da8-4caf-b9eb-9399833c1338" />
+<img width="2348" height="1024" alt="Screenshot 2026-05-08 225551" src="https://github.com/user-attachments/assets/1f753d7d-a5fe-4696-af65-31890b994dec" />
 
 *Ref 16: Aggressive scan output showing combined results.*
 
@@ -293,20 +294,21 @@ Saving scan results is standard practice for documentation, reporting, and later
 
 ```bash
 # Save as plain text
-nmap -A 10.10.x.x -oN scan_results.txt
+nmap -A 10.64.164.212 -oN scan_results.txt
 
 # Save as XML (for use with other tools)
-nmap -A 10.10.x.x -oX scan_results.xml
+nmap -A 10.64.164.212 -oX scan_results.xml
 ```
 
-[image]
+<img width="2377" height="1116" alt="Screenshot 2026-05-08 230259" src="https://github.com/user-attachments/assets/86d583c0-7497-4484-a344-0360c0dee671" />
+<img width="2868" height="1307" alt="Screenshot 2026-05-08 230241" src="https://github.com/user-attachments/assets/4b7f5c73-8d5c-4297-b9df-441348b831ed" />
 
 *Ref 17: Saved scan output file contents.*
 
 ## Findings
 
 ### Version Detection and Vulnerability Research
-Service version numbers allow analysts and attackers alike to cross-reference against CVE databases. A service running an outdated version with a known exploit is an immediate finding — this is a core part of both penetration testing and SOC vulnerability management workflows.
+Service version numbers allow analysts and attackers alike to cross-reference against CVE databases. A service running an outdated version with a known exploit is an immediate finding. This is a core part of both penetration testing and SOC vulnerability management workflows.
 
 ### NSE Scripts
 The Nmap Scripting Engine extends Nmap's capabilities beyond simple port scanning into active enumeration. Scripts can detect vulnerabilities, enumerate shares, brute force credentials, and more. Understanding what NSE scripts do is important for SOC analysts because the traffic they generate has recognizable patterns that should trigger alerts.
@@ -318,8 +320,8 @@ Saving output in multiple formats is a professional habit — plain text for rea
 
 ## Security Relevance
 
-Nmap is one of the most widely used tools in both offensive security and network defense. Penetration testers use it for initial reconnaissance; SOC analysts use it for asset inventory, identifying unexpected open ports, and validating firewall rules. Understanding how Nmap works — and what its scans look like in network traffic — directly improves an analyst's ability to detect and interpret reconnaissance activity against their own environment.
+Nmap is one of the most widely used tools in both offensive security and network defense. Penetration testers use it for initial reconnaissance; SOC analysts use it for asset inventory, identifying unexpected open ports, and validating firewall rules. Understanding how Nmap works and what its scans look like in network traffic directly improves an analyst's ability to detect and interpret reconnaissance activity against their own environment.
 
 ## Conclusion
 
-This project covered the full Nmap reconnaissance workflow across four TryHackMe rooms: live host discovery, basic port scanning, advanced and stealthy scan techniques, and post-scan enumeration with service detection and NSE scripts. Each section builds on the last, progressing from "is a host alive?" to "what exact software version is running and what does that mean?" — mirroring the real-world workflow used in both penetration testing engagements and SOC investigations.
+This project covered the full Nmap reconnaissance workflow across four TryHackMe rooms: live host discovery, basic port scanning, advanced and stealthy scan techniques, and post-scan enumeration with service detection and NSE scripts. Each section builds on the last, progressing from "is a host alive?" to "what exact software version is running and what does that mean?" This structure mirrors the real-world workflow used in both penetration testing engagements and SOC investigations.
